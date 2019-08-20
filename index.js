@@ -1,4 +1,3 @@
-var cheerio = require('cheerio');
 var decode = require('he').decode;
 var plumb = require('plumb');
 
@@ -12,40 +11,13 @@ function _escapeHtml (input) {
    .replace(/'/g, '&#039;');
  }
 
-// "private" helper for list processing into plaintext
-function _list (str, isOrdered) {
-  if (!str) return str;
-
-  var $ = cheerio.load(str);
-  var listEl = isOrdered ? 'ol' : 'ul';
-
-  $(listEl).each(function (i, el) {
-    var $out = cheerio.load('<p></p>');
-    var $el = $(el);
-
-    $el.find('li').each(function (j, li) {
-      var tick = isOrdered ? String(j + 1) + '.' : '-';
-
-      $out('p').append(tick + ' ' + _escapeHtml($(li).text()) + '<br />');
-    });
-
-    // avoid excess spacing coming off last element
-    // (we are wrapping with a <p> anyway)
-    $out('br').last().remove();
-
-    $el.replaceWith($out.html());
-  });
-
-  return $.html();
-}
-
 function stripStylesAndScripts(str) {
-  var $ = cheerio.load(str);
+  var div = document.createElement('div');
+  div.innerHTML = str;
 
-  $('script').remove();
-  $('style').remove();
-
-  return $.html();
+  div.querySelectorAll('script').forEach((e) => e.remove() );
+  div.querySelectorAll('style').forEach((e) => e.remove() );
+  return div.innerHTML;
 }
 
 function stringify(x) {
@@ -74,14 +46,6 @@ function linebreaks (str) {
   });
 
   return output;
-}
-
-function listOrdered (str) {
-  return _list(str, true);
-}
-
-function listUnordered (str) {
-  return _list(str, false);
 }
 
 function stripCssConditionalComment (str) {
