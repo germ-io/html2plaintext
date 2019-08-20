@@ -64,8 +64,6 @@ function trim (str) {
 module.exports = plumb(
   stringify,
   stripStylesAndScripts,
-  listOrdered,
-  listUnordered,
   collapseWhitespace,
   linebreaks,
   stripCssConditionalComment,
